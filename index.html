@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oliver Diaz Ynoa | Portal de Analítica Avanzada</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-navy: #0a192f;
+            --navy: #112240;
+            --light-navy: #233554;
+            --slate: #8892b0;
+            --light-slate: #a8b2d1;
+            --lightest-slate: #ccd6f6;
+            --white: #e6f1ff;
+            --green: #64ffda;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-navy);
+            color: var(--slate);
+            overflow-x: hidden;
+        }
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+        .main-container {
+            position: relative;
+            z-index: 1;
+        }
+        .accent-color { color: var(--green); }
+        .accent-border { border-color: var(--green); }
+        .glass-effect {
+            background: rgba(17, 34, 64, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--light-navy);
+        }
+        .section-title {
+            font-weight: 700;
+            font-size: 2rem;
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: center;
+            color: var(--white);
+        }
+        .section-title::after {
+            content: ''; display: block; position: relative; top: 2px;
+            width: 200px; height: 1px; margin-left: 20px; background-color: var(--light-navy);
+        }
+        .dashboard-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .dashboard-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 30px -15px rgba(2, 12, 27, 0.7);
+        }
+        .content-section {
+            display: none;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        .content-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .nav-button {
+            transition: all 0.25s ease;
+            border-left: 3px solid transparent;
+        }
+        .nav-button.active {
+            color: var(--green);
+            border-left-color: var(--green);
+            background-color: var(--light-navy);
+        }
+        .nav-button:hover:not(.active) {
+            color: var(--green);
+            background-color: rgba(35, 53, 84, 0.5);
+            border-left-color: rgba(100, 255, 218, 0.5);
+        }
+        .mobile-nav-button {
+            transition: all 0.25s ease;
+        }
+        .mobile-nav-button.active {
+            color: var(--green);
+            transform: translateY(-4px);
+        }
+        .main-content::-webkit-scrollbar { width: 8px; }
+        .main-content::-webkit-scrollbar-track { background: var(--dark-navy); }
+        .main-content::-webkit-scrollbar-thumb { background: var(--light-navy); border-radius: 10px; }
+        .main-content::-webkit-scrollbar-thumb:hover { background: var(--slate); }
+    </style>
+</head>
+<body class="antialiased leading-relaxed">
+
+    <div id="particles-js"></div>
+
+    <!-- Modal for Dashboard Preview -->
+    <div id="dashboardModal" class="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50 hidden p-4 main-container">
+        <div class="bg-navy rounded-lg shadow-2xl w-full max-w-6xl max-h-full overflow-auto relative glass-effect">
+            <button id="closeModal" class="absolute top-4 right-4 text-slate hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6"x2="18" y2="18"></line></svg>
+            </button>
+            <div class="p-6 md:p-8">
+                <h3 id="modalTitle" class="text-2xl font-bold mb-4 text-white"></h3>
+                <img id="modalImage" src="" alt="Dashboard Preview" class="w-full h-auto rounded-md border border-light-navy">
+            </div>
+        </div>
+    </div>
+
+    <div class="flex min-h-screen main-container">
+        <!-- Sidebar Navigation (Desktop) -->
+        <aside class="w-64 bg-navy border-r border-slate-800 p-6 flex-shrink-0 hidden md:flex flex-col">
+            <div class="text-center mb-12">
+                <div class="w-24 h-24 mx-auto rounded-full bg-slate-700 flex items-center justify-center border-2 accent-border mb-3 shadow-lg">
+                    <span class="text-3xl font-black text-white">ODY</span>
+                </div>
+                <h2 class="text-xl font-bold text-white">Oliver Diaz Ynoa</h2>
+                <p class="text-sm text-slate-400">Portal de Analítica</p>
+            </div>
+            <nav id="main-nav" class="flex flex-col space-y-2">
+                <button data-target="home" class="nav-button active text-left text-lightest-slate font-semibold p-3 rounded-r-md flex items-center space-x-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    <span>Inicio</span>
+                </button>
+                <button data-target="about" class="nav-button text-left text-lightest-slate font-semibold p-3 rounded-r-md flex items-center space-x-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    <span>Acerca de Mí</span>
+                </button>
+                <button data-target="dashboards" class="nav-button text-left text-lightest-slate font-semibold p-3 rounded-r-md flex items-center space-x-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    <span>Dashboards</span>
+                </button>
+                <button data-target="experience" class="nav-button text-left text-lightest-slate font-semibold p-3 rounded-r-md flex items-center space-x-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
+                    <span>Experiencia</span>
+                </button>
+                <button data-target="education" class="nav-button text-left text-lightest-slate font-semibold p-3 rounded-r-md flex items-center space-x-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3.33 1.67 6.67 1.67 10 0v-5"></path></svg>
+                    <span>Educación</span>
+                </button>
+                <button data-target="contact" class="nav-button text-left text-lightest-slate font-semibold p-3 rounded-r-md flex items-center space-x-3">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    <span>Contacto</span>
+                </button>
+            </nav>
+            <div class="mt-auto text-center text-slate-500 text-xs">
+                <p>&copy; 2025 Oliver Diaz Ynoa</p>
+                <p>Santo Domingo, RD</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content flex-1 h-screen overflow-y-auto pb-20 md:pb-0">
+            <div class="p-6 sm:p-8 md:p-12">
+                
+                <!-- Home Section -->
+                <section id="home" class="content-section active min-h-[85vh] flex flex-col justify-center">
+                    <p class="text-lg accent-color mb-4 font-mono">Hola, mi nombre es</p>
+                    <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white">Oliver Diaz Ynoa.</h1>
+                    <h2 class="text-3xl sm:text-5xl lg:text-6xl font-black text-slate mt-2">Transformo datos en decisiones.</h2>
+                    <div class="mt-6 flex flex-wrap gap-2">
+                        <span class="inline-block bg-light-navy text-light-slate text-sm font-medium px-3 py-1 rounded-full">Data Analyst</span>
+                        <span class="inline-block bg-light-navy text-light-slate text-sm font-medium px-3 py-1 rounded-full">Data Scientist</span>
+                        <span class="inline-block bg-light-navy text-light-slate text-sm font-medium px-3 py-1 rounded-full">Business Intelligence</span>
+                    </div>
+                    <p class="mt-6 max-w-xl text-lg text-light-slate">
+                        Analista de datos con sede en Santo Domingo, especializado en el ciclo de vida del cliente y la inteligencia comercial. Convierto datos complejos en insights claros y accionables a través de SQL, Python y Power BI.
+                    </p>
+                </section>
+
+                <!-- About & Skills Section -->
+                <section id="about" class="content-section">
+                    <h2 class="section-title">Acerca de Mí</h2>
+                    <div class="space-y-4 text-lg text-light-slate max-w-4xl">
+                        <p>En mi rol actual como Analista Sr en Claro RD, me especializo en el ciclo de vida del cliente y en la implementación de estrategias para potenciar la retención y la satisfacción. Con mi formación en Tecnologías de Analítica y Ciencia de Datos en ITLA, aplico una metodología basada en datos para la creación de reportes y seguimiento de KPIs, contribuyendo significativamente a la toma de decisiones estratégicas.</p>
+                        <p>Mis competencias en gestión de proyectos y elaboración de informes, junto con herramientas como SAS y un profundo conocimiento del análisis de datos, me permiten ofrecer soluciones innovadoras que impulsan el crecimiento de la organización.</p>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mt-16 mb-8">Set de Habilidades Técnicas</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 max-w-4xl">
+                        <!-- Skill Item -->
+                        <div class="space-y-1">
+                            <p class="font-medium text-lightest-slate">SQL & Bases de Datos</p>
+                            <div class="w-full bg-light-navy rounded-full h-2.5"><div class="bg-green h-2.5 rounded-full" style="width: 95%"></div></div>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="font-medium text-lightest-slate">Power BI / Tableau</p>
+                            <div class="w-full bg-light-navy rounded-full h-2.5"><div class="bg-green h-2.5 rounded-full" style="width: 90%"></div></div>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="font-medium text-lightest-slate">Python (Pandas, Scikit-learn)</p>
+                            <div class="w-full bg-light-navy rounded-full h-2.5"><div class="bg-green h-2.5 rounded-full" style="width: 85%"></div></div>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="font-medium text-lightest-slate">Análisis Estadístico y Modelado</p>
+                            <div class="w-full bg-light-navy rounded-full h-2.5"><div class="bg-green h-2.5 rounded-full" style="width: 80%"></div></div>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="font-medium text-lightest-slate">SAS (Base, Macro)</p>
+                            <div class="w-full bg-light-navy rounded-full h-2.5"><div class="bg-green h-2.5 rounded-full" style="width: 88%"></div></div>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="font-medium text-lightest-slate">Procesos ETL</p>
+                            <div class="w-full bg-light-navy rounded-full h-2.5"><div class="bg-green h-2.5 rounded-full" style="width: 92%"></div></div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Dashboards Section -->
+                <section id="dashboards" class="content-section">
+                    <h2 class="section-title">Galería de Dashboards</h2>
+                    <p class="mb-12 max-w-3xl text-lg text-light-slate">Una selección de dashboards que he diseñado y desarrollado. Cada uno está enfocado en resolver un problema de negocio específico a través de la visualización de datos. Haz clic para ver una vista previa.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div class="dashboard-card glass-effect rounded-lg overflow-hidden cursor-pointer" data-title="Dashboard de Retención de Clientes" data-img-src="https://placehold.co/1200x800/1e293b/64ffda?text=Retenci%C3%B3n+de+Clientes"><img src="https://placehold.co/600x400/1e293b/64ffda?text=Retenci%C3%B3n+de+Clientes" alt="Dashboard de Retención de Clientes" class="w-full h-48 object-cover"><div class="p-6"><p class="text-sm accent-color font-mono mb-2">Power BI</p><h3 class="text-xl font-bold text-white mb-3">Análisis de Fuga de Clientes (Churn)</h3><p class="text-slate">Visualización de KPIs clave para monitorear y predecir la tasa de cancelación de clientes.</p></div></div>
+                        <div class="dashboard-card glass-effect rounded-lg overflow-hidden cursor-pointer" data-title="Dashboard de Ventas en Tiempo Real" data-img-src="https://placehold.co/1200x800/1e293b/64ffda?text=Ventas+en+Tiempo+Real"><img src="https://placehold.co/600x400/1e293b/64ffda?text=Ventas+en+Tiempo+Real" alt="Dashboard de Ventas" class="w-full h-48 object-cover"><div class="p-6"><p class="text-sm accent-color font-mono mb-2">SQL + Python + Tableau</p><h3 class="text-xl font-bold text-white mb-3">Rendimiento de Ventas</h3><p class="text-slate">Seguimiento de ventas por región, producto y equipo comercial para la toma de decisiones ágil.</p></div></div>
+                        <div class="dashboard-card glass-effect rounded-lg overflow-hidden cursor-pointer" data-title="Análisis de Campañas de Marketing" data-img-src="https://placehold.co/1200x800/1e293b/64ffda?text=An%C3%A1lisis+de+Marketing"><img src="https://placehold.co/600x400/1e293b/64ffda?text=An%C3%A1lisis+de+Marketing" alt="Dashboard de Marketing" class="w-full h-48 object-cover"><div class="p-6"><p class="text-sm accent-color font-mono mb-2">Power BI</p><h3 class="text-xl font-bold text-white mb-3">ROI de Campañas de Marketing</h3><p class="text-slate">Dashboard para medir el retorno de la inversión y la efectividad de las diferentes campañas.</p></div></div>
+                        <div class="dashboard-card glass-effect rounded-lg overflow-hidden cursor-pointer" data-title="Dashboard de Inteligencia Comercial" data-img-src="https://placehold.co/1200x800/1e293b/64ffda?text=Inteligencia+Comercial"><img src="https://placehold.co/600x400/1e293b/64ffda?text=Inteligencia+Comercial" alt="Dashboard de Inteligencia Comercial" class="w-full h-48 object-cover"><div class="p-6"><p class="text-sm accent-color font-mono mb-2">SAS + Power BI</p><h3 class="text-xl font-bold text-white mb-3">Inteligencia de Mercado</h3><p class="text-slate">Análisis competitivo y de tendencias del mercado para identificar oportunidades de negocio.</p></div></div>
+                        <div class="dashboard-card glass-effect rounded-lg overflow-hidden cursor-pointer" data-title="Dashboard de Operaciones Logísticas" data-img-src="https://placehold.co/1200x800/1e293b/64ffda?text=Operaciones+Log%C3%ADsticas"><img src="https://placehold.co/600x400/1e293b/64ffda?text=Operaciones+Log%C3%ADsticas" alt="Dashboard de Operaciones" class="w-full h-48 object-cover"><div class="p-6"><p class="text-sm accent-color font-mono mb-2">Python + Streamlit</p><h3 class="text-xl font-bold text-white mb-3">Optimización de la Cadena de Suministro</h3><p class="text-slate">Monitoreo de inventario, tiempos de entrega y costos operativos para mejorar la eficiencia.</p></div></div>
+                        <div class="dashboard-card glass-effect rounded-lg overflow-hidden cursor-pointer" data-title="Análisis de Sentimiento en Redes Sociales" data-img-src="https://placehold.co/1200x800/1e293b/64ffda?text=An%C3%A1lisis+de+Sentimiento"><img src="https://placehold.co/600x400/1e293b/64ffda?text=An%C3%A1lisis+de+Sentimiento" alt="Dashboard de Redes Sociales" class="w-full h-48 object-cover"><div class="p-6"><p class="text-sm accent-color font-mono mb-2">Python (NLP) + Tableau</p><h3 class="text-xl font-bold text-white mb-3">Percepción de Marca</h3><p class="text-slate">Análisis de sentimiento de menciones de marca en redes sociales para entender la opinión pública.</p></div></div>
+                    </div>
+                </section>
+
+                <!-- Experience Section -->
+                <section id="experience" class="content-section">
+                    <h2 class="section-title">Experiencia Laboral</h2>
+                    <div class="max-w-3xl border-l-2 border-light-navy">
+                        <div class="relative pl-8 pb-8">
+                            <div class="absolute -left-[11px] top-1 w-5 h-5 bg-green border-4 border-dark-navy rounded-full"></div>
+                            <p class="text-sm accent-color font-mono">Mar 2024 - Presente</p>
+                            <h3 class="text-xl font-bold text-white mt-1">Analista Sr - Inteligencia Comercial</h3>
+                            <p class="text-lg font-medium text-light-slate">Claro RD</p>
+                            <ul class="mt-4 space-y-2 text-slate list-disc list-inside">
+                                <li>Desarrollo de modelos para el análisis del ciclo de vida del cliente.</li>
+                                <li>Creación de dashboards en Power BI para el seguimiento de KPIs estratégicos.</li>
+                                <li>Colaboración con equipos multifuncionales para definir métricas de negocio.</li>
+                            </ul>
+                        </div>
+                        <div class="relative pl-8 pb-8">
+                             <div class="absolute -left-[11px] top-1 w-5 h-5 bg-navy border-2 border-slate rounded-full"></div>
+                            <p class="text-sm text-slate font-mono">Sep 2023 - Mar 2024</p>
+                            <h3 class="text-xl font-bold text-white mt-1">Analista Sr de Mantenimiento y Retención de Clientes</h3>
+                            <p class="text-lg font-medium text-light-slate">Claro RD</p>
+                        </div>
+                        <div class="relative pl-8">
+                             <div class="absolute -left-[11px] top-1 w-5 h-5 bg-navy border-2 border-slate rounded-full"></div>
+                            <p class="text-sm text-slate font-mono">Jun 2023 - Ago 2023</p>
+                            <h3 class="text-xl font-bold text-white mt-1">Pasante de Mantenimiento y Retención de Clientes</h3>
+                            <p class="text-lg font-medium text-light-slate">Claro RD</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Education Section -->
+                <section id="education" class="content-section">
+                    <h2 class="section-title">Educación y Certificaciones</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div>
+                            <h3 class="text-2xl font-bold text-white mb-6">Educación</h3>
+                            <div class="glass-effect p-6 rounded-lg mb-6">
+                                <p class="text-sm accent-color font-mono">2021 - Abr 2024</p>
+                                <h4 class="text-xl font-bold text-white mt-1">Tecnólogo en Analítica y Ciencia de Datos</h4>
+                                <p class="text-lg font-medium text-light-slate">ITLA (Instituto Tecnológico de las Américas)</p>
+                                <p class="text-slate mt-1">Promedio: 3.7</p>
+                            </div>
+                            <div class="glass-effect p-6 rounded-lg">
+                                <p class="text-sm accent-color font-mono">A partir de Nov 2024</p>
+                                <h4 class="text-xl font-bold text-white mt-1">Ingeniería de Datos e Inteligencia Organizacional</h4>
+                                <p class="text-lg font-medium text-light-slate">Universidad del Caribe</p>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white mb-6">Certificaciones Clave</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-start space-x-4 glass-effect p-4 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0 accent-color mt-1"><path d="M12 15l-3.5-3.5 1.5-1.5 2 2 4-4 1.5 1.5z"></path><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path></svg><div><h4 class="font-bold text-white">Workshop: Optimización de Código SAS/Macro</h4><p class="text-sm text-slate">SAS</p></div></div>
+                                <div class="flex items-start space-x-4 glass-effect p-4 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0 accent-color mt-1"><path d="M12 15l-3.5-3.5 1.5-1.5 2 2 4-4 1.5 1.5z"></path><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path></svg><div><h4 class="font-bold text-white">SAS Programming 3: Advanced Techniques</h4><p class="text-sm text-slate">SAS</p></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Contact Section -->
+                <section id="contact" class="content-section">
+                    <div class="text-center max-w-xl mx-auto flex flex-col items-center justify-center min-h-[75vh]">
+                        <h2 class="text-lg font-mono accent-color mb-4">05. ¿Qué sigue?</h2>
+                        <h3 class="text-5xl font-black text-white mb-6">Ponte en Contacto</h3>
+                        <p class="text-light-slate mb-8 text-lg">Actualmente estoy abierto a nuevas oportunidades y mi bandeja de entrada está siempre abierta. Si tienes una pregunta o simplemente quieres saludar, ¡haré todo lo posible por responderte!</p>
+                        <a href="mailto:oliver.diaz.ynoaa@email.com" class="px-8 py-4 border accent-border text-accent-color rounded-md font-bold text-lg hover:bg-green/10 transition-colors duration-300">¡Di Hola!</a>
+                        <div class="mt-20 flex justify-center space-x-6">
+                            <a href="#" class="text-slate hover:text-accent-color transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a>
+                            <a href="#" class="text-slate hover:text-accent-color transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mobile Bottom Navigation -->
+    <nav id="mobile-nav" class="md:hidden fixed bottom-0 left-0 right-0 bg-navy/80 backdrop-blur-lg border-t border-light-navy flex justify-around py-2 z-20">
+        <button data-target="home" class="mobile-nav-button active p-2 text-slate flex flex-col items-center space-y-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+        </button>
+        <button data-target="about" class="mobile-nav-button p-2 text-slate flex flex-col items-center space-y-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        </button>
+        <button data-target="dashboards" class="mobile-nav-button p-2 text-slate flex flex-col items-center space-y-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        </button>
+        <button data-target="experience" class="mobile-nav-button p-2 text-slate flex flex-col items-center space-y-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
+        </button>
+        <button data-target="contact" class="mobile-nav-button p-2 text-slate flex flex-col items-center space-y-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+        </button>
+    </nav>
+    
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Particles.js Configuration
+            particlesJS("particles-js", {
+                "particles": { "number": { "value": 60, "density": { "enable": true, "value_area": 800 } }, "color": { "value": "#233554" }, "shape": { "type": "circle" }, "opacity": { "value": 0.5, "random": true }, "size": { "value": 3, "random": true }, "line_linked": { "enable": true, "distance": 150, "color": "#233554", "opacity": 0.4, "width": 1 }, "move": { "enable": true, "speed": 1, "direction": "none", "random": false, "straight": false, "out_mode": "out", "bounce": false } },
+                "interactivity": { "detect_on": "canvas", "events": { "onhover": { "enable": true, "mode": "grab" }, "onclick": { "enable": false }, "resize": true }, "modes": { "grab": { "distance": 140, "line_linked": { "opacity": 1 } } } },
+                "retina_detect": true
+            });
+
+            // Navigation Logic
+            const mainNav = document.getElementById('main-nav');
+            const mobileNav = document.getElementById('mobile-nav');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            const switchTab = (targetId) => {
+                contentSections.forEach(section => section.classList.remove('active'));
+                document.getElementById(targetId).classList.add('active');
+
+                document.querySelectorAll('.nav-button, .mobile-nav-button').forEach(btn => {
+                    btn.classList.remove('active');
+                    if(btn.dataset.target === targetId) {
+                        btn.classList.add('active');
+                    }
+                });
+            };
+
+            mainNav.addEventListener('click', (e) => {
+                const targetButton = e.target.closest('.nav-button');
+                if (targetButton) switchTab(targetButton.dataset.target);
+            });
+            
+            mobileNav.addEventListener('click', (e) => {
+                const targetButton = e.target.closest('.mobile-nav-button');
+                if (targetButton) switchTab(targetButton.dataset.target);
+            });
+
+            // Modal Logic
+            const dashboardCards = document.querySelectorAll('.dashboard-card');
+            const modal = document.getElementById('dashboardModal');
+            const modalImage = document.getElementById('modalImage');
+            const modalTitle = document.getElementById('modalTitle');
+            const closeModalBtn = document.getElementById('closeModal');
+
+            dashboardCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    modalTitle.textContent = card.dataset.title;
+                    modalImage.src = card.dataset.imgSrc;
+                    modalImage.alt = card.dataset.title;
+                    modal.classList.remove('hidden');
+                });
+            });
+
+            const closeModal = () => modal.classList.add('hidden');
+            closeModalBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+            });
+        });
+    </script>
+</body>
+</html>
